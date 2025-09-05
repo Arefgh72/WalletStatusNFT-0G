@@ -1,0 +1,28 @@
+name: Get 0G Storage Base URI
+
+# این بخش به شما اجازه می‌دهد که این workflow را به صورت دستی اجرا کنید
+on:
+  workflow_dispatch:
+
+jobs:
+  get-uri-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install 0g-storage-sdk
+
+      - name: Run the script to get URI
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          # RPC_URL: ${{ secrets.RPC_URL }} # در صورت نیاز می‌توانید این را هم سکرت کنید
+        run: python get_base_uri.py
