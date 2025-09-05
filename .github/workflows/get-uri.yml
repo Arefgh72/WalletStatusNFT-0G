@@ -15,19 +15,19 @@ jobs:
         with:
           go-version: '1.21'
 
-      # --- مرحله نهایی و اصلاح شده ---
-      - name: Initialize Go module and Install Dependencies
+      # --- مرحله نهایی و اصلاح شده برای حل مشکل ناسازگاری ---
+      - name: Initialize and Configure Go Module
         run: |
           # ۱. ماژول Go را راه‌اندازی می‌کند
           echo "Initializing Go module..."
           go mod init geturi
 
-          # ۲. کتابخانه‌های اصلی را نصب می‌کند
-          echo "Installing 0G Storage and Ethereum libraries..."
-          go get github.com/0glabs/0g-storage-client
-          go get github.com/ethereum/go-ethereum
+          # ۲. نسخه‌های دقیق و سازگار پکیج‌ها را به صورت دستی مشخص می‌کند
+          echo "Forcing specific compatible package versions..."
+          go mod edit -require=github.com/0glabs/0g-storage-client@v0.4.1
+          go mod edit -require=github.com/ethereum/go-ethereum@v1.13.5
 
-          # ۳. تمام وابستگی‌ها را همگام‌سازی و فایل go.sum را کامل می‌کند
+          # ۳. تمام وابستگی‌ها را بر اساس نسخه‌های مشخص شده، همگام‌سازی می‌کند
           echo "Tidying and syncing all module dependencies..."
           go mod tidy
 
