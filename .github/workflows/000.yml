@@ -16,13 +16,18 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install System and Python Dependencies
         run: |
+          # ابزارهای مورد نیاز برای کامپایل پکیج‌ها را نصب می‌کند
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+          
+          # pip را آپدیت کرده و پکیج 0g را با جزئیات کامل (verbose) نصب می‌کند
           python -m pip install --upgrade pip
-          pip install 0g-storage-sdk
+          pip install --verbose 0g-storage-sdk
 
       - name: Run the script to get URI
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          # RPC_URL: ${{ secrets.RPC_URL }} # در صورت نیاز می‌توانید این را هم سکرت کنید
         run: python get_base_uri.py
+
