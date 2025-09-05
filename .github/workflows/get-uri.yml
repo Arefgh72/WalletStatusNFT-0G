@@ -1,5 +1,6 @@
 name: Get 0G Storage Base URI
 
+# این ورک‌فلو فقط به صورت دستی اجرا می‌شود
 on:
   workflow_dispatch:
 
@@ -7,30 +8,28 @@ jobs:
   get-uri-job:
     runs-on: ubuntu-latest
     steps:
+      # ۱. کد ریپازیتوری را دانلود می‌کند
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ۲. محیط Go را راه‌اندازی می‌کند
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
-      # --- مرحله نهایی و اصلاح شده برای حل مشکل ناسازگاری ---
-      - name: Initialize and Configure Go Module
+      # ۳. وابستگی‌های لازم را بر اساس مستندات رسمی نصب می‌کند
+      - name: Initialize and Install Dependencies
         run: |
-          # ۱. ماژول Go را راه‌اندازی می‌کند
-          echo "Initializing Go module..."
+          # ماژول Go را راه‌اندازی می‌کند
           go mod init geturi
-
-          # ۲. نسخه‌های دقیق و سازگار پکیج‌ها را به صورت دستی مشخص می‌کند
-          echo "Forcing specific compatible package versions..."
-          go mod edit -require=github.com/0glabs/0g-storage-client@v0.4.1
-          go mod edit -require=github.com/ethereum/go-ethereum@v1.13.5
-
-          # ۳. تمام وابستگی‌ها را بر اساس نسخه‌های مشخص شده، همگام‌سازی می‌کند
-          echo "Tidying and syncing all module dependencies..."
+          # پکیج‌های رسمی و صحیح را نصب می‌کند
+          go get github.com/0glabs/0g-storage-client
+          go get github.com/ethereum/go-ethereum
+          # تمام وابستگی‌ها را همگام‌سازی می‌کند
           go mod tidy
 
+      # ۴. اسکریپت Go را برای دریافت آدرس اجرا می‌کند
       - name: Run the script to get URI
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
