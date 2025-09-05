@@ -1,38 +1,32 @@
 name: Get 0G Storage Base URI
 
-# این بخش به شما اجازه می‌دهد که این workflow را به صورت دستی از تب Actions اجرا کنید
-# This allows you to manually trigger the workflow from the Actions tab.
 on:
   workflow_dispatch:
 
 jobs:
   get-uri-job:
-    # این job روی آخرین نسخه اوبونتو در ماشین‌های مجازی گیت‌هاب اجرا می‌شود
-    # This job runs on the latest version of Ubuntu on GitHub-hosted runners.
     runs-on: ubuntu-latest
     steps:
-      # مرحله ۱: کد ریپازیتوری شما را در ماشین مجازی گیت‌هاب کپی می‌کند
-      # Step 1: Checks out your repository's code onto the runner.
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # مرحله ۲: محیط Go را با نسخه مشخص شده راه‌اندازی می‌کند
-      # Step 2: Sets up the Go environment with a specified version.
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21' # استفاده از یک نسخه پایدار Go
+          go-version: '1.21'
 
-      # مرحله ۳: کتابخانه‌های رسمی و مورد نیاز Go را دانلود و نصب می‌کند
-      # Step 3: Downloads and installs the required official Go libraries.
-      - name: Install Go Dependencies
+      # --- مرحله جدید و اصلاح شده ---
+      - name: Initialize Go module and Install Dependencies
         run: |
+          # ابتدا یک ماژول Go را راه‌اندازی می‌کند تا دستورات بعدی کار کنند
+          echo "Initializing Go module..."
+          go mod init geturi
+
+          # سپس کتابخانه‌های رسمی مورد نیاز را نصب می‌کند
           echo "Installing 0G Storage and Ethereum libraries..."
           go get github.com/0glabs/0g-storage-client
           go get github.com/ethereum/go-ethereum
 
-      # مرحله ۴: اسکریپت Go را اجرا می‌کند و کلید خصوصی را به صورت امن از سکرت‌های گیت‌هاب به آن می‌دهد
-      # Step 4: Runs the Go script, securely passing the private key from GitHub Secrets.
       - name: Run the script to get URI
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
