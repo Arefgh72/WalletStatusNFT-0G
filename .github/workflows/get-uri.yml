@@ -41,7 +41,7 @@ jobs:
           # اجرای دستور آپلود دقیقا مطابق مستندات
           # از 'tee' استفاده می‌کنیم تا خروجی هم در لاگ نمایش داده شود و هم قابل استفاده باشد
           UPLOAD_OUTPUT=$(./zg_storage upload \
-            --url "https://rpc-testnet.0g.ai/" \
+            --url "https://evmrpc-testnet.0g.ai" \
             --indexer "https://indexer-storage-testnet-turbo.0g.ai" \
             --key "$PRIVATE_KEY" \
             --file ./testfile.txt | tee /dev/stderr)
