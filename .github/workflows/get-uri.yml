@@ -7,31 +7,58 @@ jobs:
   get-uri-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+      # ۱. نصب پیش‌نیازها: Go و Git
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
-      # --- مرحله نهایی و اصلاح شده برای حل مشکل ناسازگاری ---
-      - name: Initialize and Configure Go Module
+      # ۲. دانلود سورس کد رسمی 0g-storage-client
+      - name: Clone Official 0G Storage Client Repository
+        uses: actions/checkout@v4
+        with:
+          repository: 0glabs/0g-storage-client
+          path: 0g-storage-client
+
+      # ۳. ساخت (Build) فایل اجرایی CLI از سورس کد
+      - name: Build the CLI Binary
         run: |
-          # ۱. ماژول Go را راه‌اندازی می‌کند
-          echo "Initializing Go module..."
-          go mod init geturi
+          cd 0g-storage-client
+          go build
+          # فایل اجرایی ساخته شده را به یک مسیر قابل دسترس منتقل می‌کنیم
+          mv 0g-storage-client ../zg_storage
 
-          # ۲. نسخه‌های دقیق و سازگار پکیج‌ها را به صورت دستی مشخص می‌کند
-          echo "Forcing specific compatible package versions..."
-          go mod edit -require=github.com/0glabs/0g-storage-client@v0.4.1
-          go mod edit -require=github.com/ethereum/go-ethereum@v1.13.5
-
-          # ۳. تمام وابستگی‌ها را بر اساس نسخه‌های مشخص شده، همگام‌سازی می‌کند
-          echo "Tidying and syncing all module dependencies..."
-          go mod tidy
-
-      - name: Run the script to get URI
+      # ۴. آپلود فایل تستی با استفاده از CLI ساخته شده
+      - name: Upload Test File and Get Root Hash
+        id: upload_step
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        run: go run get_base_uri.go
+        run: |
+          echo "Creating a temporary test file..."
+          echo "This is the final test file." > testfile.txt
+          
+          echo "Uploading the file using the official CLI..."
+          # اجرای دستور آپلود دقیقا مطابق مستندات
+          # از 'tee' استفاده می‌کنیم تا خروجی هم در لاگ نمایش داده شود و هم قابل استفاده باشد
+          UPLOAD_OUTPUT=$(./zg_storage upload \
+            --url "https://rpc-testnet.0g.ai/" \
+            --indexer "https://indexer-storage-testnet-turbo.0g.ai" \
+            --key "$PRIVATE_KEY" \
+            --file ./testfile.txt | tee /dev/stderr)
+          
+          # استخراج هش فایل (Root Hash) از خروجی
+          ROOT_HASH=$(echo "$UPLOAD_OUTPUT" | grep "Root hash" | awk '{print $3}')
+          echo "Extracted Root Hash: $ROOT_HASH"
+          
+          # ذخیره کردن هش برای استفاده در مرحله بعد
+          echo "ROOT_HASH=$ROOT_HASH" >> $GITHUB_OUTPUT
+
+      # ۵. نمایش هش نهایی به عنوان خروجی اصلی
+      - name: Display the Final Identifier
+        run: |
+          echo "======================================================================"
+          echo "✅ Success! Your File Identifier (Merkle Root Hash) is:"
+          echo "${{ steps.upload_step.outputs.ROOT_HASH }}"
+          echo "======================================================================"
+          echo "NOTE: This hash is the unique ID for your uploaded data."
+          echo "For your contract's baseURI, you will likely use a gateway URL followed by this hash."
