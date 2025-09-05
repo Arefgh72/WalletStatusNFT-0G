@@ -1,6 +1,5 @@
 name: Get 0G Storage Base URI
 
-# این ورک‌فلو فقط به صورت دستی اجرا می‌شود
 on:
   workflow_dispatch:
 
@@ -8,30 +7,91 @@ jobs:
   get-uri-job:
     runs-on: ubuntu-latest
     steps:
-      # ۱. کد ریپازیتوری را دانلود می‌کند
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ۲. محیط Go را راه‌اندازی می‌کند
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
-      # ۳. وابستگی‌های لازم را بر اساس مستندات رسمی نصب می‌کند
-      - name: Initialize and Install Dependencies
+      # --- مرحله نهایی و اصلاح شده برای حل مشکل ناسازگاری ---
+      - name: Initialize and Configure Go Module
         run: |
-          # ماژول Go را راه‌اندازی می‌کند
+          # ۱. ماژول Go را راه‌اندازی می‌کند
+          echo "Initializing Go module..."
           go mod init geturi
-          # پکیج‌های رسمی و صحیح را نصب می‌کند
-          go get github.com/0glabs/0g-storage-client
-          go get github.com/ethereum/go-ethereum
-          # تمام وابستگی‌ها را همگام‌سازی می‌کند
+
+          # ۲. نسخه‌های دقیق و سازگار پکیج‌ها را به صورت دستی مشخص می‌کند
+          echo "Forcing specific compatible package versions..."
+          go mod edit -require=github.com/0glabs/0g-storage-client@v0.4.1
+          go mod edit -require=github.com/ethereum/go-ethereum@v1.13.5
+
+          # ۳. تمام وابستگی‌ها را بر اساس نسخه‌های مشخص شده، همگام‌سازی می‌کند
+          echo "Tidying and syncing all module dependencies..."
           go mod tidy
 
-      # ۴. اسکریپت Go را برای دریافت آدرس اجرا می‌کند
       - name: Run the script to get URI
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         run: go run get_base_uri.go
+```eof
 
+---
+### فایل ۲: اسکریپت کامل و نهایی `get_base_uri.go` (سازگار با نسخه قفل شده)
+
+این نسخه از اسکریپت Go برای کار با همان نسخه‌های قدیمی‌تر و پایداری که در فایل `yml` قفل کرده‌ایم، نوشته شده است.
+
+```go:اسکریپت نهایی و صحیح Go:get_base_uri.go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+
+	"github.com/0glabs/0g-storage-client/node"
+	"github.com/ethereum/go-ethereum/crypto"
+)
+
+func main() {
+	// خواندن کلید خصوصی از سکرت‌های گیت‌هاب
+	privateKeyHex := os.Getenv("PRIVATE_KEY")
+	if privateKeyHex == "" {
+		log.Fatal("FATAL: PRIVATE_KEY environment variable not set.")
+	}
+	if strings.HasPrefix(privateKeyHex, "0x") {
+		privateKeyHex = privateKeyHex[2:]
+	}
+
+	privateKey, err := crypto.HexToECDSA(privateKeyHex)
+	if err != nil {
+		log.Fatalf("FATAL: Failed to parse private key: %v", err)
+	}
+
+	// ایجاد کلاینت برای 0G Storage با استفاده از API سازگار
+	client, err := node.NewClient("https://rpc-storage-testnet.0g.ai", privateKey)
+	if err != nil {
+		log.Fatalf("FATAL: Failed to create 0G storage client: %v", err)
+	}
+
+	fmt.Println("Client created successfully. Uploading test file...")
+
+	// ایجاد و آپلود یک فایل تستی
+	fileContent := []byte("This is the final test file to get the base URI.")
+	fileName := "final_test_file.txt"
+
+	result, err := client.Upload(context.Background(), fileContent, fileName)
+	if err != nil {
+		log.Fatalf("FATAL: Failed to upload file: %v", err)
+	}
+
+	// چاپ آدرس نهایی
+	fmt.Println("\n=======================================================================")
+	fmt.Println("✅ Success! Your Base URI is:")
+	fmt.Printf("\n%s\n\n", result.URL)
+	fmt.Println("=======================================================================")
+	fmt.Println("➡️ Next Step: Copy this URL, add a '/' at the end, and use it in the setBaseURI function.")
+}
