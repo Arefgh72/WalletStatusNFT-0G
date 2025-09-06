@@ -1,0 +1,46 @@
+# The name of the GitHub Actions workflow.
+name: Update Monad Wallet Status NFTs
+
+# This section defines when the workflow will run.
+on:
+  # Allows you to manually trigger the workflow from the Actions tab in GitHub.
+  workflow_dispatch:
+  # Sets up a scheduled run.
+  schedule:
+    # This CRON expression means "run every day at 00:00 UTC".
+    - cron: '0 0 * * *'
+
+# Defines the jobs that will be executed as part of the workflow.
+jobs:
+  update-monad-job:
+    # Specifies that this job will run on the latest version of an Ubuntu virtual machine.
+    runs-on: ubuntu-latest
+    
+    # A sequence of tasks that make up the job.
+    steps:
+      # Step 1: Check out your repository's code.
+      # This downloads your script files into the runner environment.
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the Python environment.
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # Step 3: Install the required Python libraries for the Monad script.
+      - name: Install Python Dependencies
+        run: pip install -r requirements_monad.txt
+
+      # Step 4: Run the main Python script to update the NFTs on the Monad network.
+      - name: Run Monad NFT Update Script
+        env:
+          # Securely pass all the necessary secrets to the Python script.
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          MONAD_CONTRACT_ADDRESS: ${{ secrets.MONAD_CONTRACT_ADDRESS }}
+          PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
+          PINATA_API_SECRET: ${{ secrets.PINATA_API_SECRET }}
+        # Executes the Python script dedicated to the Monad network.
+        run: python update_nfts_monad.py
+
