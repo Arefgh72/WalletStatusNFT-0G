@@ -12,7 +12,7 @@ load_dotenv()
 # --- Configuration for Monad ---
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
 MONAD_CONTRACT_ADDRESS = os.getenv("MONAD_CONTRACT_ADDRESS")
-RPC_URL = "https://devnet.monad.xyz/"
+RPC_URL = "https://testnet-rpc.monad.xyz"
 
 # --- Pinata Configuration ---
 PINATA_API_KEY = os.getenv("PINATA_API_KEY")
