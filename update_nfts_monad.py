@@ -7,32 +7,31 @@ from web3 import Web3
 from PIL import Image, ImageDraw, ImageFont
 
 # --- Load Environment Variables ---
+# This line loads variables from a .env file for local testing.
+# In GitHub Actions, these will be set as environment secrets.
 load_dotenv()
 
 # --- Configuration for Monad ---
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
-# --- THIS LINE IS NOW CORRECTED ---
-# It now reads from a dedicated secret for the Monad contract.
-MONAD_CONTRACT_ADDRESS = os.getenv("MONAD_CONTRACT_ADDRESS") 
+# --- IMPORTANT: This now reads from a dedicated secret for the Monad contract. ---
+MONAD_CONTRACT_ADDRESS = os.getenv("MONAD_CONTRACT_ADDRESS")
 # --- Monad Testnet RPC URL ---
-RPC_URL = "https://testnet-rpc.monad.xyz" 
+RPC_URL = "https://devnet.monad.xyz/" 
 
 # --- Pinata Configuration ---
 PINATA_API_KEY = os.getenv("PINATA_API_KEY")
 PINATA_API_SECRET = os.getenv("PINATA_API_SECRET")
 PINATA_BASE_URL = "https://api.pinata.cloud/"
 
-# --- Smart Contract ABI (Same as before) ---
-# Make sure to paste the ABI of the contract you deployed on Monad here.
+# --- Smart Contract ABI (Provided by you) ---
 CONTRACT_ABI = """
-[
-  YOUR_NEW_CONTRACT_ABI_HERE
-]
+[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256[]","name":"tokenIds","type":"uint256[]"}],"name":"BatchTokenRootHashesUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"StatusNFTMinted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":false,"internalType":"string","name":"newRootHash","type":"string"}],"name":"TokenRootHashUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256[]","name":"tokenIds","type":"uint256[]"},{"internalType":"string[]","name":"rootHashes","type":"string[]"}],"name":"batchSetTokenRootHashes","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"wallet","type":"address"}],"name":"hasMinted","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"mintStatusNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"string","name":"rootHash","type":"string"}],"name":"setTokenRootHash","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}]
 """
 
-# --- Helper Functions (No changes here) ---
+# --- Helper Functions ---
 
 def get_wallet_stats(w3, address):
+    """Fetches transaction count for a given wallet address."""
     try:
         checksum_address = w3.to_checksum_address(address)
         tx_count = w3.eth.get_transaction_count(checksum_address)
@@ -42,6 +41,7 @@ def get_wallet_stats(w3, address):
         return {"tx_count": 0}
 
 def generate_image(token_id, stats, owner_address):
+    """Generates a dynamic PNG image for the NFT."""
     img = Image.new('RGB', (800, 800), color=(16, 25, 48))
     d = ImageDraw.Draw(img)
     try:
@@ -64,6 +64,7 @@ def generate_image(token_id, stats, owner_address):
     return image_path
 
 def upload_to_pinata(file_path):
+    """Uploads a file to IPFS via Pinata and returns the CID."""
     url = f"{PINATA_BASE_URL}pinning/pinFileToIPFS"
     headers = {
         "pinata_api_key": PINATA_API_KEY,
@@ -72,7 +73,7 @@ def upload_to_pinata(file_path):
     with open(file_path, "rb") as f:
         try:
             response = requests.post(url, files={"file": f}, headers=headers)
-            response.raise_for_status()
+            response.raise_for_status() # Raise an exception for bad status codes
             cid = response.json()["IpfsHash"]
             print(f"Successfully uploaded {file_path} to IPFS. CID: {cid}")
             return cid
@@ -81,6 +82,7 @@ def upload_to_pinata(file_path):
             return None
 
 def generate_metadata_json(token_id, image_cid, stats, owner_address):
+    """Generates the metadata JSON file for the NFT."""
     metadata = {
         "name": f"Monad Wallet Status NFT #{token_id}",
         "description": "A dynamic NFT on the Monad network.",
