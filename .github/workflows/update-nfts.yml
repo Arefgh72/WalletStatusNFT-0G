@@ -8,7 +8,7 @@ on:
   # Sets up a scheduled run.
   schedule:
     # This is a CRON expression that means "run at minute 0 of every 3rd hour".
-    - cron: '0 */3 * * *'
+    - cron: '0 */12 * * *'
 
 # Defines the jobs that will be executed as part of the workflow.
 jobs:
