@@ -1,1 +1,60 @@
-update-nfts.yml
+# The name of the GitHub Actions workflow.
+name: Update Wallet Status NFTs
+
+# This section defines when the workflow will run.
+on:
+  # Allows you to manually trigger the workflow from the Actions tab in GitHub.
+  workflow_dispatch:
+  # Sets up a scheduled run.
+  schedule:
+    # This is a CRON expression that means "run at minute 0 of every 3rd hour".
+    - cron: '0 */3 * * *'
+
+# Defines the jobs that will be executed as part of the workflow.
+jobs:
+  update-job:
+    # Specifies that this job will run on the latest version of an Ubuntu virtual machine.
+    runs-on: ubuntu-latest
+    
+    # A sequence of tasks that make up the job.
+    steps:
+      # Step 1: Check out your repository's code.
+      # This downloads your `update_nfts.py` and `requirements.txt` files into the runner.
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the necessary environments (Go and Python).
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # Step 3: Install the required Python libraries.
+      - name: Install Python Dependencies
+        run: pip install -r requirements.txt
+
+      # Step 4: Clone and build the official 0G Storage CLI from source.
+      # This is the official method prescribed by the 0G documentation you provided.
+      - name: Clone and Build Official 0G Storage CLI
+        run: |
+          # Clone the official repository from GitHub.
+          git clone https://github.com/0glabs/0g-storage-client.git
+          # Move into the cloned directory.
+          cd 0g-storage-client
+          # Build the executable binary from the source code.
+          go build
+          # Move the built binary to the root directory so the Python script can find it.
+          mv 0g-storage-client ../zg_storage
+
+      # Step 5: Run the main Python script to update the NFTs.
+      - name: Run NFT Update Script
+        env:
+          # Securely pass the secrets from your GitHub repository settings to the script.
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          CONTRACT_ADDRESS: ${{ secrets.CONTRACT_ADDRESS }}
+        run: python update_nfts.py
+
