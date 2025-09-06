@@ -1165,5 +1165,5 @@ contract WalletStatusNFT is ERC721, Ownable {
  */
 function totalSupply() public view returns (uint256) {
     return _tokenIdCounter.current();
-}
+ }
 }
