@@ -119,7 +119,7 @@ def upload_to_0g_storage(file_path):
     
     try:
         # Run the command with a timeout and capture output
-        result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=120)
+        result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=400)
         output = result.stdout
         print("CLI Output:", output)
         
