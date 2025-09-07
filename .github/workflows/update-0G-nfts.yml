@@ -1,5 +1,5 @@
 # The name of the GitHub Actions workflow.
-name: Update Monad Wallet Status NFTs
+name: Update 0g Wallet Status NFTs
 
 # This section defines when the workflow will run.
 on:
