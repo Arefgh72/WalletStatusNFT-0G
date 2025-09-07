@@ -6,7 +6,6 @@ on:
   # Allows you to manually trigger the workflow from the Actions tab in GitHub.
   workflow_dispatch:
   # Sets up a scheduled run.
-  schedule:
     # This CRON expression means "run every day at 00:00 UTC".
     - cron: '0 0 * * *'
 
