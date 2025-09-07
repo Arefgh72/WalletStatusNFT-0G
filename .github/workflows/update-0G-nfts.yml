@@ -38,7 +38,7 @@ jobs:
         env:
           # Securely pass all the necessary secrets to the Python script.
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          0G_CONTRACT_ADDRESS: ${{ secrets.ZG_CONTRACT_ADDRESS }}
+          ZG_CONTRACT_ADDRESS: ${{ secrets.ZG_CONTRACT_ADDRESS }}
           PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
           PINATA_API_SECRET: ${{ secrets.PINATA_API_SECRET }}
         # Executes the Python script dedicated to the Monad network.
