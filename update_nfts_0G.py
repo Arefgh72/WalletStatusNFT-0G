@@ -9,9 +9,9 @@ from PIL import Image, ImageDraw, ImageFont
 # --- Load Environment Variables ---
 load_dotenv()
 
-# --- Configuration for Monad ---
+# --- Configuration for 0g ---
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
-MONAD_CONTRACT_ADDRESS = os.getenv("ZG_CONTRACT_ADDRESS")
+0G_CONTRACT_ADDRESS = os.getenv("ZG_CONTRACT_ADDRESS")
 RPC_URL = "https://evmrpc-testnet.0g.ai/"
 
 # --- Pinata Configuration ---
@@ -136,8 +136,8 @@ def main():
         print(f"FATAL: Could not connect to Monad RPC at {RPC_URL}.")
         return
     account = w3.eth.account.from_key(PRIVATE_KEY)
-    contract = w3.eth.contract(address=w3.to_checksum_address(MONAD_CONTRACT_ADDRESS), abi=CONTRACT_ABI)
-    print(f"Connected to Monad. Script wallet: {account.address}")
+    contract = w3.eth.contract(address=w3.to_checksum_address(ZG_CONTRACT_ADDRESS), abi=CONTRACT_ABI)
+    print(f"Connected to 0G. Script wallet: {account.address}")
     total_supply = contract.functions.totalSupply().call()
     print(f"Total NFTs minted: {total_supply}")
     if total_supply == 0:
