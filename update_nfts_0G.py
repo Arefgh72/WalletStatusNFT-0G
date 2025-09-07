@@ -11,7 +11,7 @@ load_dotenv()
 
 # --- Configuration for 0g ---
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
-0G_CONTRACT_ADDRESS = os.getenv("ZG_CONTRACT_ADDRESS")
+ZG_CONTRACT_ADDRESS = os.getenv("ZG_CONTRACT_ADDRESS")
 RPC_URL = "https://evmrpc-testnet.0g.ai/"
 
 # --- Pinata Configuration ---
