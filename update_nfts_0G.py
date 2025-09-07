@@ -128,7 +128,7 @@ def generate_metadata_json(token_id, image_cid, stats, owner_address):
 
 # --- Main Logic (No changes here) ---
 def main():
-    if not all([PRIVATE_KEY, MONAD_CONTRACT_ADDRESS, PINATA_API_KEY, PINATA_API_SECRET]):
+    if not all([PRIVATE_KEY, ZG_CONTRACT_ADDRESS, PINATA_API_KEY, PINATA_API_SECRET]):
         print("FATAL: All required environment variables must be set.")
         return
     w3 = Web3(Web3.HTTPProvider(RPC_URL))
